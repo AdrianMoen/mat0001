@@ -133,24 +133,96 @@ class SierpinskiTriangle():
 
     def orient_triangles(triangle_list, width, height, n):
         
+        # Vilkårlig verdi som burde være vere mer en den minste x verdien
+        minX = 10000
+
+        # finner, og oppdaterer minX med den minste x verdien
         for triangle in triangle_list:
-            triangle.x1 *= 1/n
-            triangle.x2 *= 1/n
-            triangle.x3 *= 1/n
+            x1 = triangle.x1
+            x2 = triangle.x2
+            x3 = triangle.x3
 
-            triangle.y1 *= 1/n
-            triangle.y2 *= 1/n
-            triangle.y3 *= 1/n
+            if x1 < x2:
+                if x1 < x3:
+                    if x1 < minX:
+                        minX = x1
+                        continue
+                    else:
+                        continue
+                else:
+                    if x3 < minX:
+                        minX = x3
+                        continue
+                    else:
+                        continue
+            else:
+                if x2 < x3:
+                    if x2 < minX:
+                        minX = x2
+                        continue
+                    else:
+                        continue
+                else:
+                    if x3 < minX:
+                        minX = x3
+                        continue
+                    else:
+                        continue
 
-            triangle.x1 += window_width/2 - width*2
-            triangle.x2 += window_width/2 - width*2
-            triangle.x3 += window_width/2 - width*2
+        # Siden trekanten vokser i positiv x, og negativ y, må vi finne maxY
+        maxY = -10000
 
-            triangle.y1 += window_height/2 + height*2
-            triangle.y2 += window_height/2 + height*2
-            triangle.y3 += window_height/2 + height*2
+        for triangle in triangle_list:
+            y1 = triangle.y1
+            y2 = triangle.y2
+            y3 = triangle.y3
 
-        
+            if y1 > y2:
+                if y1 > y3:
+                    if y1 > maxY:
+                        maxY = y1
+                        continue
+                    else:
+                        continue
+                else:
+                    if y3 > maxY:
+                        maxY = y3
+                        continue
+                    else:
+                        continue
+            else:
+                if y2 > y3:
+                    if y2 > maxY:
+                        maxY = y2
+                        continue
+                    else:
+                        continue
+                else:
+                    if y3 > maxY:
+                        maxY = y3
+                        continue
+                    else:
+                        continue
+
+        print("minX: ",minX)
+        print("maxY: ",maxY)
+
+        for triangle in triangle_list:
+            triangle.x1 = (triangle.x1/2**n)*12
+            triangle.x2 = (triangle.x2/2**n)*12
+            triangle.x3 = (triangle.x3/2**n)*12
+
+            triangle.y1 = (triangle.y1/2**n)*12
+            triangle.y2 = (triangle.y2/2**n)*12
+            triangle.y3 = (triangle.y3/2**n)*12
+
+            triangle.x1 += minX
+            triangle.x2 += minX
+            triangle.x3 += minX
+
+            triangle.y1 += maxY
+            triangle.y2 += maxY
+            triangle.y3 += maxY
 
 
 
