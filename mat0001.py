@@ -184,8 +184,7 @@ def main():
 
     # henter inn argumentet og gjøre det om til int,
     # siden den tolkes som en string, eller 'str'
-    argv = sys.argv[0]
-    n = 10
+    n = int(sys.argv[1])
 
     # lager den første trekanten og legger den inn i den første listen
     triangle_list = []
