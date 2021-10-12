@@ -3,16 +3,20 @@
 # Email: Adrian.Moen01@gmail.com
 import sys
 import pygame
+import pygame.gfxdraw
 from pygame import color
 from pygame.locals import *
 
 pygame.init()
 
+# Vindus dimensjoner
 window_width = 1280
 window_height = 720
 
+# Skjerm bakgrunnsfarge
 screencolor = (0, 0, 0)
 
+# Setter opp pygame sin display og ett canvas
 canvas = pygame.display.set_mode((window_width, window_height))
 pygame.display.set_caption("Sierpinski trekant")
 
@@ -30,13 +34,15 @@ class Triangle():
         
         self.surface = surface
 
+    # Tegner selve trekanten ved bruk av gfxdraw, en kan også ender det til filled_trigon()
     def draw_triangle(self, color):
+        
+        pygame.gfxdraw.trigon(self.surface, int(self.x1), int(self.y1), int(self.x2), int(self.y2), int(self.x3), int(self.y3), color)
 
-        pygame.draw.line(self.surface, color, (self.x1, self.y1), (self.x2, self.y2), width=1)
-        pygame.draw.line(self.surface, color, (self.x2, self.y2), (self.x3, self.y3), width=1)
-        pygame.draw.line(self.surface, color, (self.x3, self.y3), (self.x1, self.y1), width=1)
 
-    # finner bredden på trekanten
+
+    # Finner bredden på trekanten, teknisk sett kan dette gjøres slik det er
+    # gjort lengre ned, der det er forutsatt at x1 > x2 > x3. men dette funker
     def get_width(x1, x2, x3):
 
         if x1 < x2:
@@ -58,7 +64,8 @@ class Triangle():
 
         return width
 
-    # finner høyden på trekanten
+    # Finner høyden på trekanten, teknisk sett kan dette gjøres slik det er gjort
+    # lengre ned, der det er forutsatt at y2 er størst, og y1 = y3 men dette funker
     def get_height(y1, y2, y3):
 
         if y1 < y2:
@@ -80,34 +87,35 @@ class Triangle():
 
         return height
 
-# gjør sierpinksi delen om til en klasse, mest for at det skal se pent ut
+# Gjør sierpinksi delen om til en klasse, mest for at det skal se pent ut
 class SierpinskiTriangle():
     
     def __init__(self, triangle_list, n):
         self.triangle_list = triangle_list
         self.n = n
 
-    # rekursiv funksjon som produserer en liste med alle trekantene
+    # Rekursiv funksjon som produserer en liste med alle trekantene
     def calculate_triangles(width, height, triangle_list, n):
         
+        # Ny liste for å lagre de nye trekantene som skal videre i rekursjonen
         new_triangle_list = []
 
-        # sjekker om vi har nådd n-te iterasjon, dersom n == 1
-        # returnerer vi den originale trekant listen
+        # Sjekker om vi har nådd n-te iterasjon
         if n <= 1:
             return triangle_list
 
-        # lager trekanten som forflyttes til høyre
+        # Lager trekanten som forflyttes til høyre og legges til i den nye lista
         for triangle in triangle_list:
             x1New = triangle.x1 + width
             x2New = triangle.x2 + width
             x3New = triangle.x3 + width
 
             newTriangle = Triangle(x1New, triangle.y1, x2New, triangle.y2, x3New, triangle.y3, canvas)
+            # Den "originale" trekanten legges til i den nye lista og blir med videre.
             new_triangle_list.append(newTriangle)
             new_triangle_list.append(triangle)
 
-        # lager trekanten som forflyttes opp of til høyre i midten
+        # Lager trekanten som forflyttes opp of til høyre i midten, og legger til i den nye lista
         for triangle in triangle_list:
             x1New = triangle.x1 + width/2
             x2New = triangle.x2 + width/2
@@ -120,54 +128,52 @@ class SierpinskiTriangle():
             newTriangle = Triangle(x1New, y1New, x2New, y2New, x3New, y3New, canvas)
             new_triangle_list.append(newTriangle)
     
-        # fjerner triangle_list for hver gang, siden en ny sendes videre
+        # Fjerner triangle_list for hver gang, siden en ny sendes videre
         del triangle_list
 
+        # Skalerer trekantens bredde slik at de nestkommende 
+        # plasseres riktig
         width  *= 2
         height *= 2
 
+        # Reduserer n
         n = n - 1
 
+        # Kaller seg selv rekursivt
         return_list = SierpinskiTriangle.calculate_triangles(width, height, new_triangle_list, n)
         return return_list
 
-    def orient_triangles(triangle_list, width, height, n):
-        
-        # Vilkårlig verdi som burde være vere mer en den minste x verdien
-        minX = 10000
+    def orient_triangles(triangle_list, n):
+    
+        # Skalerer trekantene, her er 23 et vilkårlig tall slik at trekanten blir en passe størelse
+        # Trekantens bredde øker med 2^n, derav deles den på 2^n 
+        for triangle in triangle_list:
+            triangle.x1 = ((triangle.x1*23)/2**(n+1))
+            triangle.x2 = ((triangle.x2*23)/2**(n+1))
+            triangle.x3 = ((triangle.x3*23)/2**(n+1))
 
-        # finner, og oppdaterer minX med den minste x verdien
+            triangle.y1 = ((triangle.y1*23)/2**(n+1))
+            triangle.y2 = ((triangle.y2*23)/2**(n+1))
+            triangle.y3 = ((triangle.y3*23)/2**(n+1))
+
+        # Vilkårlig verdi som burde være vere mer en den minste x verdien 
+        # og større enn den største, bare en liten hack
+        minX = 10000
+        maxX= -10000
+
+        # Finner, og oppdaterer minX med den minste og største x verdien
         for triangle in triangle_list:
             x1 = triangle.x1
             x2 = triangle.x2
             x3 = triangle.x3
 
-            if x1 < x2:
-                if x1 < x3:
-                    if x1 < minX:
-                        minX = x1
-                        continue
-                    else:
-                        continue
-                else:
-                    if x3 < minX:
-                        minX = x3
-                        continue
-                    else:
-                        continue
-            else:
-                if x2 < x3:
-                    if x2 < minX:
-                        minX = x2
-                        continue
-                    else:
-                        continue
-                else:
-                    if x3 < minX:
-                        minX = x3
-                        continue
-                    else:
-                        continue
+            # Bare x1 kan være minst
+            if x1 < minX:
+                minX = x1
+
+            # Bare x3 kan være størst
+            if x3 > maxX:
+                maxX = x3
 
         # Siden trekanten vokser i positiv x, og negativ y, må vi finne maxY
         maxY = -10000
@@ -177,70 +183,49 @@ class SierpinskiTriangle():
             y2 = triangle.y2
             y3 = triangle.y3
 
-            if y1 > y2:
-                if y1 > y3:
-                    if y1 > maxY:
-                        maxY = y1
-                        continue
-                    else:
-                        continue
-                else:
-                    if y3 > maxY:
-                        maxY = y3
-                        continue
-                    else:
-                        continue
-            else:
-                if y2 > y3:
-                    if y2 > maxY:
-                        maxY = y2
-                        continue
-                    else:
-                        continue
-                else:
-                    if y3 > maxY:
-                        maxY = y3
-                        continue
-                    else:
-                        continue
+            # y1 og y2 er altid minst, siden det er en likesidet trekant. 
+            # valget av y1 er helt vilkårlig
+            if y1 > maxY:
+                maxY = y1
 
-        print("minX: ",minX)
-        print("maxY: ",maxY)
+        # Samtlige tall som trengs for å finne moveX og moveY
+        # som er forflyttning på x og y aksen
+        width = maxX-minX
+        startingX = window_width/2 - width/2
+        startingY = window_height - 100
 
+        moveX = minX - startingX
+        moveY = startingY - maxY
+
+        # Flytter trekanten slik at minX er ved startingX, samme for maxY
         for triangle in triangle_list:
-            triangle.x1 = (triangle.x1/2**n)*12
-            triangle.x2 = (triangle.x2/2**n)*12
-            triangle.x3 = (triangle.x3/2**n)*12
 
-            triangle.y1 = (triangle.y1/2**n)*12
-            triangle.y2 = (triangle.y2/2**n)*12
-            triangle.y3 = (triangle.y3/2**n)*12
-
-            triangle.x1 += minX
-            triangle.x2 += minX
-            triangle.x3 += minX
+            triangle.x1 -= moveX
+            triangle.x2 -= moveX
+            triangle.x3 -= moveX
             
-            triangle.y1 += maxY
-            triangle.y2 += maxY
-            triangle.y3 += maxY
+            triangle.y1 += moveY
+            triangle.y2 += moveY
+            triangle.y3 += moveY
 
 
 
 def main():
     
+    # Mens denne er sann, vill hoved loopen kjøre
     running = True
 
-    # posisjon til første trekant
+    # posisjon til den første trekanten
     x1 = 100
-    y1 = 100
+    y1 = window_height-100
 
     x2 = 200
-    y2 = 100
+    y2 = window_height-100
 
     x3 = 150
-    y3 = 0
+    y3 = window_height - 200
 
-    # fargen til trekantene representert av en tuple med rgb verdier
+    # Fargen til trekantene representert av en tuple med rgb verdier
     # og en alpha verdi, alle trekantene skal ha samme farge.
     red = (255, 0, 0, 255)
     green = (0, 255, 0, 255)
@@ -250,42 +235,45 @@ def main():
 
     color = cyan
 
-    # finner bredde og høyde, som er statisk gjennom programmet
+    # Finner bredde og høyde på den originale trekanten
     width = Triangle.get_width(x1, x2, x3)
     height = Triangle.get_height(y1, y2, y3)
 
-    # henter inn argumentet og gjøre det om til int,
-    # siden den tolkes som en string, eller 'str'
+    # Henter inn argumentet og gjør det om til int,
+    # siden den tolkes som en string
     n = int(sys.argv[1])
 
-    # lager den første trekanten og legger den inn i den første listen
+    # Lager den første trekanten og legger den inn i den første listen
     triangle_list = []
     triangle = Triangle(x1, y1, x2, y2, x3, y3, canvas)
     triangle_list.append(triangle)
 
 
-    # lager sierpinski trekanten av n-te grad
-    p = 1
+    # Lager sierpinski trekanten av n-te grad
     complete_triangle_list = SierpinskiTriangle.calculate_triangles(width, height, triangle_list, n)
 
-    # initialiserer sierpinski trekanten
+    # Initialiserer sierpinski trekanten
     sierpinski = SierpinskiTriangle(complete_triangle_list, n)
 
-    # forflytter trekantene slik at de er synlige, samt skalerer dem
-    SierpinskiTriangle.orient_triangles(complete_triangle_list, width, height, n)
+    # Skalerer og forflytter trekanten, kan enkelt endres i funksjonen
+    SierpinskiTriangle.orient_triangles(complete_triangle_list, n)
 
-    # hoved loop for å displaye trekanten
+    # Hoved loop for å displaye trekanten
     while running:
         
+        # Fyller bakgrunnen med fargen
         canvas.fill(screencolor)
 
-        # tegner alle trekantene. Trenger strengt tatt ikke
+        # Tegner alle trekantene. Trenger strengt tatt ikke
         # være inne i hoved loopen, da de ikke flytter på seg
         for triangle in complete_triangle_list:
             triangle.draw_triangle(color)
-        # print(len(complete_triangle_list))
+
+        # Oppdaterer display
         pygame.display.update()
 
+
+        # Event handling, i tilfelle en skal krysser ut programmet etc.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 runnign = False
