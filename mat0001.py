@@ -88,7 +88,7 @@ class SierpinskiTriangle():
         self.n = n
 
     # rekursiv funksjon som produserer en liste med alle trekantene
-    def calculate_triangles(width, height, triangle_list, n, p):
+    def calculate_triangles(width, height, triangle_list, n):
         
         new_triangle_list = []
 
@@ -99,9 +99,9 @@ class SierpinskiTriangle():
 
         # lager trekanten som forflyttes til høyre
         for triangle in triangle_list:
-            x1New = triangle.x1 + width*p
-            x2New = triangle.x2 + width*p
-            x3New = triangle.x3 + width*p
+            x1New = triangle.x1 + width
+            x2New = triangle.x2 + width
+            x3New = triangle.x3 + width
 
             newTriangle = Triangle(x1New, triangle.y1, x2New, triangle.y2, x3New, triangle.y3, canvas)
             new_triangle_list.append(newTriangle)
@@ -109,44 +109,47 @@ class SierpinskiTriangle():
 
         # lager trekanten som forflyttes opp of til høyre i midten
         for triangle in triangle_list:
-            x1New = triangle.x1 + width*p/2
-            x2New = triangle.x2 + width*p/2
-            x3New = triangle.x3 + width*p/2
-
-            y1New = triangle.y1 - height*p
-            y2New = triangle.y2 - height*p
-            y3New = triangle.y3 - height*p
+            x1New = triangle.x1 + width/2
+            x2New = triangle.x2 + width/2
+            x3New = triangle.x3 + width/2
+            
+            y1New = triangle.y1 - height
+            y2New = triangle.y2 - height
+            y3New = triangle.y3 - height
 
             newTriangle = Triangle(x1New, y1New, x2New, y2New, x3New, y3New, canvas)
             new_triangle_list.append(newTriangle)
     
         # fjerner triangle_list for hver gang, siden en ny sendes videre
         del triangle_list
-        n = n - 1
-        p = p + 1
 
-        return_list = SierpinskiTriangle.calculate_triangles(width, height, new_triangle_list, n, p)
+        width  *= 2
+        height *= 2
+
+        n = n - 1
+
+        return_list = SierpinskiTriangle.calculate_triangles(width, height, new_triangle_list, n)
         return return_list
 
     def orient_triangles(triangle_list, width, height, n):
         
         for triangle in triangle_list:
-            triangle.x1 += window_width - width/2
-            triangle.x2 += window_width - width/2
-            triangle.x3 += window_width - width/2
+            triangle.x1 *= 1/n
+            triangle.x2 *= 1/n
+            triangle.x3 *= 1/n
 
-            triangle.y1 += window_height - height/2
-            triangle.y2 += window_height - height/2
-            triangle.y3 += window_height - height/2
-            print(triangle.y3)
+            triangle.y1 *= 1/n
+            triangle.y2 *= 1/n
+            triangle.y3 *= 1/n
 
-            triangle.x1 /= 2
-            triangle.x2 /= 2
-            triangle.x3 /= 2
+            triangle.x1 += window_width/2 - width*2
+            triangle.x2 += window_width/2 - width*2
+            triangle.x3 += window_width/2 - width*2
 
-            triangle.y1 /= 2
-            triangle.y2 /= 2
-            triangle.y3 /= 2
+            triangle.y1 += window_height/2 + height*2
+            triangle.y2 += window_height/2 + height*2
+            triangle.y3 += window_height/2 + height*2
+
         
 
 
@@ -182,7 +185,7 @@ def main():
     # henter inn argumentet og gjøre det om til int,
     # siden den tolkes som en string, eller 'str'
     argv = sys.argv[0]
-    n = 6
+    n = 10
 
     # lager den første trekanten og legger den inn i den første listen
     triangle_list = []
@@ -191,8 +194,8 @@ def main():
 
 
     # lager sierpinski trekanten av n-te grad
-    p = 0
-    complete_triangle_list = SierpinskiTriangle.calculate_triangles(width, height, triangle_list, n, p)
+    p = 1
+    complete_triangle_list = SierpinskiTriangle.calculate_triangles(width, height, triangle_list, n)
 
     # initialiserer sierpinski trekanten
     sierpinski = SierpinskiTriangle(complete_triangle_list, n)
