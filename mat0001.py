@@ -219,7 +219,7 @@ class SierpinskiTriangle():
             triangle.x1 += minX
             triangle.x2 += minX
             triangle.x3 += minX
-
+            
             triangle.y1 += maxY
             triangle.y2 += maxY
             triangle.y3 += maxY
