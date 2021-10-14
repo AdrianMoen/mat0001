@@ -28,6 +28,7 @@ class Triangle():
     '''
     Håndterer selve trekanten. siden alle trekantene er et eget objekt
     Functions:
+        __init__()          Initialiserer trekanten, tilegner den en surface, og koordinater
         draw_triangle()     Tegner trekanten, blir kalt en gang for hver trekant for hver "frame"
         get_length()        Regner ut lengden på trekanten, alle sidene er like lange
     '''
@@ -66,7 +67,7 @@ class SierpinskiTriangle():
     '''
     Denne klassen brukes for alt relatert til Sierpinski trekanten, dvs trekantene som en enhet.
     Functions: 
-        __init__                Initialiserer objektet
+        __init__                Initialiserer trekanten, tilegner den en n og lengde (lengden på den endelige trekanten)
         calculate_triangles()   Tar inn en liste med trekanter, multipliserer den n ganger slik som
                                 Sierpinksitrekanten skal se ut, og returnerer en fullstending liste med alle trekantene
         orient_triangle()       Tar listen med trekantene, skalerer, og sentrerer trekanten
@@ -76,25 +77,27 @@ class SierpinskiTriangle():
         find_xmin               Finner minste x verdi, venstre kant, i sierpinksi trekanten
         find_ymax               Finner største y verdi, nederste punkt, på sierpinski trekanten
     '''
-    def __init__(self, n):
+    def __init__(self, n, length):
         self.n = n
+        self.length = length
+
 
 
     # Rekursiv funksjon som produserer en liste med alle trekantene
-    def calculate_triangles(self, length, triangle_list, n):
+    def calculate_triangles(self, triangle_list):
         
         # Ny liste for å lagre de nye trekantene som skal videre i rekursjonen
         new_triangle_list = []
 
         # Sjekker om vi har nådd n-te iterasjon
-        if n <= 1:
+        if self.n <= 1:
             return triangle_list
 
         # Lager trekanten som forflyttes til høyre og legges til i den nye lista
         for triangle in triangle_list:
-            x1New = triangle.x1 + length
-            x2New = triangle.x2 + length
-            x3New = triangle.x3 + length
+            x1New = triangle.x1 + self.length
+            x2New = triangle.x2 + self.length
+            x3New = triangle.x3 + self.length
 
             newTriangle = Triangle(x1New, triangle.y1, x2New, triangle.y2, x3New, triangle.y3, canvas)
             # Den "originale" trekanten legges til i den nye lista og blir med videre.
@@ -103,13 +106,13 @@ class SierpinskiTriangle():
 
         # Lager trekanten som forflyttes opp of til høyre i midten, og legger til i den nye lista
         for triangle in triangle_list:
-            x1New = triangle.x1 + length/2
-            x2New = triangle.x2 + length/2
-            x3New = triangle.x3 + length/2
+            x1New = triangle.x1 + self.length/2
+            x2New = triangle.x2 + self.length/2
+            x3New = triangle.x3 + self.length/2
             
-            y1New = triangle.y1 - length
-            y2New = triangle.y2 - length
-            y3New = triangle.y3 - length
+            y1New = triangle.y1 - self.length
+            y2New = triangle.y2 - self.length
+            y3New = triangle.y3 - self.length
 
             newTriangle = Triangle(x1New, y1New, x2New, y2New, x3New, y3New, canvas)
             new_triangle_list.append(newTriangle)
@@ -119,13 +122,13 @@ class SierpinskiTriangle():
 
         # Skalerer trekantens bredde slik at de nestkommende 
         # plasseres riktig
-        length  *= 2
+        self.length  *= 2
 
         # Reduserer n
-        n = n - 1
+        self.n = self.n - 1
 
         # Kaller seg selv rekursivt
-        return_list = SierpinskiTriangle.calculate_triangles(length, new_triangle_list, n)
+        return_list = self.calculate_triangles(new_triangle_list)
         return return_list
 
 
@@ -143,9 +146,9 @@ class SierpinskiTriangle():
             triangle.y3 = ((triangle.y3*23)/2**(n+1))
 
         # trenger min og max x for lengde av den skalerte trekanten, og maxy/minx for sentrering
-        minX = SierpinskiTriangle.find_xmin(triangle_list)
-        maxX = SierpinskiTriangle.find_xmax(triangle_list)
-        maxY = SierpinskiTriangle.find_ymax(triangle_list)
+        minX = self.find_xmin(triangle_list)
+        maxX = self.find_xmax(triangle_list)
+        maxY = self.find_ymax(triangle_list)
 
         # Samtlige tall som trengs for å finne moveX og moveY
         # som er forflyttning på x og y aksen
@@ -175,7 +178,7 @@ class SierpinskiTriangle():
         totalArea = 0
         
         for triangle in triangle_list:
-            side = triangle.x3 - triangle.x1   # Har på dette tidspunktet innsett at width og height blir det samme
+            side = triangle.x3 - triangle.x1
 
             totalArea += ((math.sqrt(3)/4)*side**2)
 
@@ -253,13 +256,13 @@ def main():
     Hoved del i programmet
     Inneholder:
         Declareringer av viktige verdier og variabler relatert til trekantene
-        Alle viktige funksjonskall, initialisering Sierpinskitrekanten osv.
+        Alle viktige funksjonskall, initialisering av Sierpinskitrekanten osv.
         Hoved loop skriving til skjerm, og holde skjermen og programmet oppe (main engine)
     '''
     # Mens denne er sann, vill hoved loopen kjøre
     running = True
 
-    # posisjon til den første trekanten
+    # posisjon til den første trekanten, relativ posisjon er vilkårlig
     x1 = 100
     y1 = window_height-100
 
@@ -270,7 +273,7 @@ def main():
     y3 = window_height - 200
 
     # Fargen til trekantene representert av en tuple med rgb verdier
-    # og en alpha verdi, alle trekantene skal ha samme farge.
+    # og en alpha verdi, alle trekantene får samme farge.
     red = (255, 0, 0, 255)
     green = (0, 255, 0, 255)
     blue = (0, 0, 255, 255)
@@ -279,8 +282,7 @@ def main():
 
     color = cyan
 
-    # Henter inn argumentet og gjør det om til int,
-    # siden den tolkes som en string
+    # Henter inn argumentet og gjør det om til int
     # Dersom ingen argument, eller ikke heltall, printes en feilmelding
     try:
         n = int(sys.argv[1])
@@ -289,8 +291,7 @@ def main():
         print('\033[93m' + "WARNING: note that n should also be an integer, preferably not bigger than 14" + '\033[0m')
         return 0
 
-    # Dersom argv nr 2 er "filled", blir trekanten fyllt
-    # ellers, blir den ikke det.    
+    # Dersom argv nr 2 er: "filled", blir trekanten fyllt, ellers, blir den ikke det
     try:
         if sys.argv[2] == "filled":
             filled = 1
@@ -305,17 +306,15 @@ def main():
 
     # Finner bredde og høyde på den originale trekanten
     length = triangle.get_length()
+
+    # Initialiserer sierpinski trekanten med grad n
+    sierpinski = SierpinskiTriangle(n, length)
     
-
-    # Lager sierpinski trekanten av n-te grad
-    complete_triangle_list = SierpinskiTriangle.calculate_triangles(length, triangle_list, n)
-
-    # Initialiserer sierpinski trekanten
-    sierpinski = SierpinskiTriangle(complete_triangle_list, n)
-
-    # Skalerer og forflytter trekanten, og finner areal og omkrets
+    # Lager sierpinski trekanten, skalerer og forflytter den
+    complete_triangle_list = sierpinski.calculate_triangles(triangle_list)
     sierpinski.orient_triangles(complete_triangle_list, n)
-
+    
+    # Finner arealet og omkretsen
     totalArea = sierpinski.find_area(complete_triangle_list)
     totalCircumference = sierpinski.find_circumference(complete_triangle_list)
 
