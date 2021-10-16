@@ -1,8 +1,7 @@
 # Author: Adrian Løberg Moen
 # Github: AdrianMoen
 # Email: Adrian.Moen01@gmail.com
-# Orker ikke en objekt orientert tilnerming denne gangen
-
+# Orker ikke en objekt orientert implementasjon for denne
 import sys
 import math
 
