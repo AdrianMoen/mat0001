@@ -284,11 +284,13 @@ def main():
 
     # Henter inn argumentet og gjør det om til int
     # Dersom ingen argument, eller ikke heltall, printes en feilmelding
+    if len(sys.argv) == 1:
+        print('\033[91m' + "ERROR: no n'th degree given, how to use: SierpinskiTriangle.py [n] [[optional]:\"filled\"]" + '\033[0m')
+        return 0
     try:
-        n = int(sys.argv[1])
+        assert type(int(sys.argv))
     except:
-        print('\033[91m' + "ERROR: no n'th degree given, how to use: SierpinskiTriangle.py [n] [optional]:[\"filled\"]" + '\033[0m')
-        print('\033[93m' + "WARNING: note that n should also be an integer, preferably not bigger than 14" + '\033[0m')
+        print('\033[91m' + "WARNING: argument 1 must be an integer, preferebly under 14" + '\033[0m')
         return 0
 
     # Dersom argv nr 2 er: "filled", blir trekanten fyllt, ellers, blir den ikke det
@@ -329,7 +331,7 @@ def main():
             triangle.draw_triangle(color, filled)
 
         # Tegner teksten, og 'bliter' den på bakgrunnen
-        header = textFont.render("Arealet og omkretsen ved %d-te grad" % n, False, (255, 255, 255))
+        header = textFont.render("Arealet og omkretsen ved %d. grad" % n, False, (255, 255, 255))
         area = textFont.render("A = %d" % totalArea, False, (255, 255, 255))
         circumference = textFont.render("O = %d" % totalCircumference, False, (255, 255, 255))
 
