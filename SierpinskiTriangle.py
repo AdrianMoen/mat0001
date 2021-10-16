@@ -287,7 +287,7 @@ def main():
     try:
         n = int(sys.argv[1])
     except:
-        print('\033[91m' + "ERROR: no n'th degree given, formula for running: SierpinskiTriangle.py [n] [optional]:[\"filled\"]" + '\033[0m')
+        print('\033[91m' + "ERROR: no n'th degree given, how to use: SierpinskiTriangle.py [n] [optional]:[\"filled\"]" + '\033[0m')
         print('\033[93m' + "WARNING: note that n should also be an integer, preferably not bigger than 14" + '\033[0m')
         return 0
 
