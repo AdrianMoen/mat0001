@@ -2,82 +2,62 @@
 # Github: AdrianMoen
 # Email: Adrian.Moen01@gmail.com
 # Orker ikke en objekt orientert implementasjon for denne
-import sys
 import math
 
 # y er lik hva enn funksjon du skriver inn her, x**n betyr x^n. f. eks brukes math.sqrt(x) for kvadratroter
 def function(x):
-
-    y = x*(math.e**x)-1
+    y = x * (math.e ** x) - 1
     return y
 
 
 # Returnerer punktet mellom firstPoint og lastPoint
-def findMiddlePoint(firstPoint, lastPoint):
-    return firstPoint/2 + lastPoint/2
+def find_middle_point(firstPoint, lastPoint):
+    return (firstPoint + lastPoint) / 2
 
 
 # Sjekker om y verdien er positiv eller negativ
-def checkSign(x):
+def check_sign(x):
     if function(x) > 0:
-        sign = 'positive'
+        sign = "positive"
     elif function(x) < 0:
-        sign = 'negative'
+        sign = "negative"
     else:
-        sign = 'zero'
+        sign = "zero"
     return sign
 
 
-def bisectionMethod(x1, x2, n):
+def bisection(x1, x2, n):
 
     # Finds middlepoint
-    middleX = findMiddlePoint(x1, x2)
+    middle = find_middle_point(x1, x2)
 
     if n <= 0:
-        return middleX
+        return middle
 
     # Sjekker for null
-    if checkSign(middleX) == 'zero':
-        print("zero point found prematurely: %d", middleX)
-        return middleX
-    
+    if check_sign(middle) == "zero":
+        print("zero point found prematurely: %d", middle)
+        return middle
+
     # Sjekker fortegnene, og fortsetter med rett verdi
-    if checkSign(x1) == checkSign(middleX):
-        n -= 1
-        return bisectionMethod(middleX, x2, n)
-    elif checkSign(x2) == checkSign(middleX):
-        n -= 1
-        return bisectionMethod(x1, middleX, n)
-    else:
-        print("Something went wrong in the bisection method")
-        return None
+    if check_sign(x1) == check_sign(middle):
+        return bisection(middle, x2, n - 1)
+    elif check_sign(x2) == check_sign(middle):
+        return bisection(x1, middle, n - 1)
+
+    print("Something went wrong in the bisection method")
 
 
-def main():
+if __name__ == "__main__":
+    import argparse
 
-    # Error handling i tilfelle noen starter programmet feil
-    if len(sys.argv) == 1:
-        print("\033[91m ERROR: missing arguments, how to use: bisection.py [x1] [x2] [n]\033[0m")
-        return 0
-    try:
-        assert type(int(sys.argv[1])) == int 
-        assert type(int(sys.argv[2])) == int
-        assert type(int(sys.argv[3])) == int
-    except:
-        print("\033[91m ERROR: arguments can only integers, how to use: bisection.py [x1] [x2] [n]\033[0m")
-        return 0
+    parser = argparse.ArgumentParser()
+    parser.add_argument("a", type=int, help="Find a root in the interval [a, b]")
+    parser.add_argument("b", type=int, help="Find a root in the interval [a, b]")
+    parser.add_argument("n", type=int, help="Number of iterations")
+    args = parser.parse_args()
 
-    start = int(sys.argv[1])
-    lastPoint = int(sys.argv[2])
-    n = int(sys.argv[3])
+    approx_zero_value = bisection(args.a, args.b, args.n)
 
-    firstPoint = function(start)
-
-    approxZeroValue = bisectionMethod(firstPoint, lastPoint, n)
-    
     print("bisection method:")
-    print("approxiamate zero value is:", approxZeroValue)
-
-
-if __name__ == '__main__':
-    main()  
+    print("approximate zero value is:", approx_zero_value)
